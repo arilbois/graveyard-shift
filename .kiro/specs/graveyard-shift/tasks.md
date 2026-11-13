@@ -61,9 +61,13 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
     - `npm run package` passed: `graveyard-shift.vsix` with 8 entries (package.json, LICENSE, icon, 3 dist files, 2 VSIX metadata files); no sources, tests or source maps.
     - `engines.vscode ^1.90.0` set from Kiro's `product.json` (`vsCodeVersion` 1.131.0).
     - Toolchain: TypeScript 6.0.3, because typescript-eslint 8.72 supports TS < 6.1 (TS 7 is out but not yet supported).
-    - **Manual, pending (user):** install the VSIX in Kiro (`kiro --install-extension graveyard-shift.vsix`), open the Graveyard Shift sidebar, reload the window, check the extension host log for errors.
+    - **Kiro install, passed (agent, 2026-11-14 02:49):**
+      - `kiro --install-extension ./graveyard-shift.vsix` installed `graveyard-shift.graveyard-shift@0.1.0`.
+      - Both open Kiro windows logged `ExtensionService#_doActivateExtension graveyard-shift.graveyard-shift, activationEvent: 'onStartupFinished'` in `exthost.log`, with no reload.
+      - No `[error]` or `[warning]` lines followed activation in either log.
+    - **Manual, pending (user):** open the Graveyard Shift sidebar and confirm the placeholder text renders. Webviews resolve only when the view is opened in the UI, so the agent cannot check this.
     - **Manual, pending (user):** confirm in the Kiro UI that the `PostTaskExec` hook runs when a spec task is marked complete.
-    - `npm audit`: 11 moderate advisories, all in dev-only lint and packaging tooling (typescript-eslint's `minimatch`, `@vscode/vsce`). None ship in the VSIX.
+    - `npm audit`: 11 moderate advisories, all from one dev-only finding (minimatch), with no runtime exposure. See `docs/security/dependency-audit.md`. `npm run audit:prod` reports 0.
 
 - [ ] 2. Shared config, constants and settings contribution
   - `src/shared/config.ts`:
