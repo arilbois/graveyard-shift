@@ -3,10 +3,12 @@
   "hooks": [
     {
       "name": "Verify completed spec tasks",
-      "trigger": "PostTaskExecution",
+      "trigger": "PostTaskExec",
+      "description": "Runs typecheck, lint and tests after a spec task is marked complete. No-op until the verify script exists.",
       "action": {
         "type": "command",
-        "command": "npm run verify --if-present"
+        "command": "npm run verify --if-present",
+        "timeout": 300
       }
     }
   ]
