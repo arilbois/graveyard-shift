@@ -69,6 +69,7 @@
     "lint": "eslint --max-warnings=0 .",
     "test": "vitest run",
     "verify": "npm run typecheck && npm run lint && npm run test",
+    "audit:prod": "npm audit --omit=dev",
     "vscode:prepublish": "npm run build",
     "package": "vsce package --no-dependencies --out graveyard-shift.vsix"
   },
