@@ -25,7 +25,7 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
 
 ## Milestone A — Skeleton that installs in Kiro
 
-- [ ] 1. Scaffold the extension, toolchain and verify script
+- [x] 1. Scaffold the extension, toolchain and verify script
   - `package.json`:
     - name `graveyard-shift`, `license: MIT`, `engines.vscode ^1.90.0`, `activationEvents: onStartupFinished`
     - Activity Bar container + `graveyardShift.companion` webview view, `graveyardShift.openCompanion` command
@@ -38,7 +38,10 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
     - webview cannot import `src/extension/**`
     - no module may import `http`, `https`, `net`, `tls`, `dgram` or `undici`
     - `fetch`, `XMLHttpRequest`, `WebSocket` and `EventSource` are banned globals (R14.1)
-  - Vitest with `unit`, `property` and `webview` projects. Smoke tests: CSP builder (unit), nonce format (property), placeholder renders an accessible heading (webview).
+  - Vitest with `unit`, `property` and `webview` projects. Smoke tests:
+    - CSP builder, nonce and manifest ids (unit)
+    - HTML escaping for arbitrary strings (property)
+    - placeholder exposes an accessible heading and landmark (webview)
   - Scripts: `build`, `build:host`, `build:webview`, `typecheck`, `lint`, `test`, `verify` (= typecheck && lint && test), `package` (vsce, no dependencies since everything is bundled).
   - `src/extension/activate.ts` registers the view provider with a static, CSP-compliant React placeholder, using the nonce and `asWebviewUri` pattern from design §7.1. All disposables go to `context.subscriptions`.
   - Confirm the verify hook: run `npm run verify --if-present` directly. Hook firing on task completion is checked in the Kiro UI (manual).
@@ -47,6 +50,20 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
     - `npm run package` makes a VSIX, and its file list contains only runtime files.
     - Manual: install it in Kiro, open the sidebar, reload the window, and check the extension host log for errors.
   - _Requirements: 1.1, 1.2, 14.1, 15.1, 15.2, 18.1, 20.1, 20.2, 20.4, 20.5_
+  - **Verification note (2026-11-14, macOS arm64, Node 24.21, Kiro 1.4.154 / Code OSS 1.131.0):**
+    - Ran `npm run verify --if-present` (the hook's exact command). Passed: typecheck of 5 projects, ESLint with 0 warnings, and Vitest (4 files, 15 tests across unit, property and webview).
+    - `npm run verify` exits 1 when a test fails (checked with a temporary failing test, since removed).
+    - Lint boundaries were probed with temporary files, all 6 violations rejected:
+      - a domain file importing `vscode`, `node:fs` or an adapter
+      - a webview file importing host code or using `fetch`
+      - host code importing `node:https`
+    - `npm run build` passed: host bundle 4.7 KB, webview 214 KB JS + 0.7 KB CSS. The webview bundle has no `eval`/`new Function`, and neither bundle has network APIs.
+    - `npm run package` passed: `graveyard-shift.vsix` with 8 entries (package.json, LICENSE, icon, 3 dist files, 2 VSIX metadata files); no sources, tests or source maps.
+    - `engines.vscode ^1.90.0` set from Kiro's `product.json` (`vsCodeVersion` 1.131.0).
+    - Toolchain: TypeScript 6.0.3, because typescript-eslint 8.72 supports TS < 6.1 (TS 7 is out but not yet supported).
+    - **Manual, pending (user):** install the VSIX in Kiro (`kiro --install-extension graveyard-shift.vsix`), open the Graveyard Shift sidebar, reload the window, check the extension host log for errors.
+    - **Manual, pending (user):** confirm in the Kiro UI that the `PostTaskExec` hook runs when a spec task is marked complete.
+    - `npm audit`: 11 moderate advisories, all in dev-only lint and packaging tooling (typescript-eslint's `minimatch`, `@vscode/vsce`). None ship in the VSIX.
 
 - [ ] 2. Shared config, constants and settings contribution
   - `src/shared/config.ts`:
