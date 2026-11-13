@@ -1,0 +1,9 @@
+{
+  "//": "Root tooling files only (build/test/lint configs and scripts). Source areas have their own tsconfig.json.",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": ["node"]
+  },
+  "include": ["*.ts", "*.mts", "scripts/**/*.mts"]
+}

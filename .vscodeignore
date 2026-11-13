@@ -1,0 +1,10 @@
+# Ship only runtime files. Everything else (sources, tests, specs, tooling) stays out of the VSIX.
+**
+!package.json
+!LICENSE
+!README.md
+!ASSETS.md
+!dist/extension.js
+!dist/webview/**
+!assets/**
+assets/sprites/src/**

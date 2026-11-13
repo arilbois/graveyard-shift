@@ -1,0 +1,38 @@
+/*
+ * Design tokens (visual-style.md). The palette is used inside the companion scene only;
+ * text and controls outside it follow the IDE theme tokens so light, dark and high-contrast work.
+ * Contrast measurements: design.md §7.7.
+ */
+:root {
+  --gs-ink: #191e1b;
+  --gs-panel: #252c26;
+  --gs-bone: #ebe7da;
+  --gs-olive: #9aad86;
+  --gs-rust: #b47c66; /* body text on ink only (4.84:1); large text or non-text on panel (4.10:1) */
+  --gs-muted: #b3bdb0;
+
+  --gs-space-1: 8px;
+  --gs-space-2: 16px;
+  --gs-space-3: 24px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  color: var(--vscode-foreground);
+  background: transparent;
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  line-height: 1.5;
+}
+
+:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: 2px;
+}

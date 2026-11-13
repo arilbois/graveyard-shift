@@ -1,0 +1,9 @@
+{
+  "//": "Shared types and pure logic used by both host and webview: no DOM, Node or vscode types.",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": ["./**/*.ts"]
+}
