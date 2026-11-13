@@ -1,0 +1,9 @@
+{
+  "//": "Extension host. Node runtime, no DOM. Shared types come from ../shared.",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": ["node", "vscode"]
+  },
+  "include": ["./**/*.ts", "../shared/**/*.ts"]
+}

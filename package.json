@@ -1,0 +1,88 @@
+{
+  "name": "graveyard-shift",
+  "displayName": "Graveyard Shift",
+  "description": "A privacy-first wellness companion for Kiro. Your code is alive. But are you?",
+  "version": "0.1.0",
+  "publisher": "graveyard-shift",
+  "license": "MIT",
+  "private": true,
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "wellness",
+    "breaks",
+    "kiro",
+    "kiroween"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "graveyardShift",
+          "title": "Graveyard Shift",
+          "icon": "assets/icons/activity-bar.svg"
+        }
+      ]
+    },
+    "views": {
+      "graveyardShift": [
+        {
+          "type": "webview",
+          "id": "graveyardShift.companion",
+          "name": "Companion"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "graveyardShift.openCompanion",
+        "title": "Open Companion",
+        "category": "Graveyard Shift"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "npm run build:host && npm run build:webview",
+    "build:host": "esbuild src/extension/activate.ts --bundle --platform=node --format=cjs --target=node20 --external:vscode --sourcemap --outfile=dist/extension.js",
+    "build:webview": "vite build",
+    "typecheck": "tsc -p tsconfig.json && tsc -p src/shared && tsc -p src/extension && tsc -p src/webview && tsc -p tests",
+    "lint": "eslint --max-warnings=0 .",
+    "test": "vitest run",
+    "verify": "npm run typecheck && npm run lint && npm run test",
+    "vscode:prepublish": "npm run build",
+    "package": "vsce package --no-dependencies --allow-missing-repository --out graveyard-shift.vsix"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@testing-library/dom": "10.4.2",
+    "@testing-library/react": "16.3.3",
+    "@types/node": "22.20.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/vscode": "1.90.0",
+    "@vitejs/plugin-react": "6.3.0",
+    "@vscode/vsce": "4.1.1",
+    "esbuild": "0.28.2",
+    "eslint": "10.14.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "fast-check": "4.10.2",
+    "globals": "17.14.0",
+    "jsdom": "31.0.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.2",
+    "vite": "8.3.8",
+    "vitest": "5.1.0"
+  }
+}
