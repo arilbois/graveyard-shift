@@ -1,0 +1,28 @@
+{
+  "reminders": {
+    "eye": {
+      "enabled": true,
+      "minutes": 20
+    },
+    "movement": {
+      "enabled": true,
+      "minutes": 60
+    },
+    "hydration": {
+      "enabled": true,
+      "minutes": 60
+    },
+    "humanCheckIn": true
+  },
+  "companion": {
+    "enabled": true,
+    "longSessionMode": "panel",
+    "longSessionHours": 5
+  },
+  "experience": {
+    "sounds": true,
+    "reducedMotion": true,
+    "focusMode": true,
+    "idleMinutes": 5
+  }
+}

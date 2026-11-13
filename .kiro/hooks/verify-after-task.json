@@ -1,0 +1,13 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Verify completed spec tasks",
+      "trigger": "PostTaskExecution",
+      "action": {
+        "type": "command",
+        "command": "npm run verify --if-present"
+      }
+    }
+  ]
+}
