@@ -4,4 +4,8 @@ export const VIEW_ID = 'graveyardShift.companion';
 
 export const COMMANDS = {
   openCompanion: 'graveyardShift.openCompanion',
+  takeBreak: 'graveyardShift.takeBreak',
+  startEyeRest: 'graveyardShift.startEyeRest',
+  pause: 'graveyardShift.pause',
+  resume: 'graveyardShift.resume',
 } as const;

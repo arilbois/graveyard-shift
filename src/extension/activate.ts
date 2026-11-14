@@ -2,7 +2,11 @@ import { performance } from 'node:perf_hooks';
 import * as vscode from 'vscode';
 import { watchActivity } from './activity/signals';
 import { Runtime, systemTimers, type EffectSink } from './application/runtime';
-import { COMMANDS, VIEW_ID } from './ids';
+import type { UserIntent } from '../shared/intents';
+import { registerCommands } from './commands';
+import { VIEW_ID } from './ids';
+import { StatusBarItem } from './notifications/statusBar';
+import { showReminderToast } from './notifications/toasts';
 import { onSettingsChanged, readSettings, setSoundEnabled } from './settings/settingsAdapter';
 import { localDay, systemClock } from './systemClock';
 import { createMessageRouter } from './webviews/messageRouter';
@@ -19,10 +23,15 @@ export function activate(context: vscode.ExtensionContext): void {
   // Late-bound: the runtime needs the sink and the sink needs the provider.
   let sidebar: SidebarViewProvider | null = null;
 
-  // Toasts arrive in task 9; cues are forwarded to the sidebar, which stays silent until task 14.
+  const statusBar = new StatusBarItem();
+  context.subscriptions.push(statusBar);
+  let dispatchIntent: (intent: UserIntent) => void = () => undefined;
+
+  // Cues are forwarded to the sidebar, which stays silent until the sound task (14).
   const effects: EffectSink = {
     apply: (effect) => {
-      if (effect.type === 'playCue') sidebar?.postCue(effect.cue);
+      if (effect.type === 'surfaceReminder') showReminderToast(effect.occurrence, dispatchIntent);
+      else sidebar?.postCue(effect.cue);
     },
   };
 
@@ -42,8 +51,12 @@ export function activate(context: vscode.ExtensionContext): void {
     },
     onViewModel: (viewModel) => {
       sidebar?.postSnapshot(viewModel);
+      statusBar.update(viewModel);
     },
   });
+  dispatchIntent = (intent) => {
+    runtime.dispatch({ type: 'intent', intent });
+  };
 
   const route = createMessageRouter({
     dispatch: (input) => {
@@ -92,9 +105,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.window.registerWebviewViewProvider(VIEW_ID, sidebar, {
       webviewOptions: { retainContextWhenHidden: false },
     }),
-    vscode.commands.registerCommand(COMMANDS.openCompanion, () =>
-      vscode.commands.executeCommand(`${VIEW_ID}.focus`),
-    ),
+    ...registerCommands(dispatchIntent),
   );
 
   runtime.start();

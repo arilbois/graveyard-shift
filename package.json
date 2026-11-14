@@ -58,6 +58,26 @@
         "command": "graveyardShift.openCompanion",
         "title": "Open Companion",
         "category": "Graveyard Shift"
+      },
+      {
+        "command": "graveyardShift.takeBreak",
+        "title": "Take a Break",
+        "category": "Graveyard Shift"
+      },
+      {
+        "command": "graveyardShift.startEyeRest",
+        "title": "Start Eye Rest",
+        "category": "Graveyard Shift"
+      },
+      {
+        "command": "graveyardShift.pause",
+        "title": "Pause",
+        "category": "Graveyard Shift"
+      },
+      {
+        "command": "graveyardShift.resume",
+        "title": "Resume",
+        "category": "Graveyard Shift"
       }
     ],
     "configuration": {
