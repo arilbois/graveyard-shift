@@ -69,7 +69,7 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
     - **Manual, pending (user):** confirm in the Kiro UI that the `PostTaskExec` hook runs when a spec task is marked complete.
     - `npm audit`: 11 moderate advisories, all from one dev-only finding (minimatch), with no runtime exposure. See `docs/security/dependency-audit.md`. `npm run audit:prod` reports 0.
 
-- [ ] 2. Shared config, constants and settings contribution
+- [x] 2. Shared config, constants and settings contribution
   - `src/shared/config.ts`:
     - `EffectiveConfig`, `BASELINE_DEFAULTS` (equal to `config/defaults.json`), `DEFAULTS` (baseline plus R2.2)
     - `validateConfig(raw) → { config, problems }` with type fallback, range clamping and the threshold-ordering rule
@@ -82,6 +82,16 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
     - fast-check property: validated output is always in range and ordered
   - **Verify:** `npm run verify`. Manual: open Settings in Kiro, search "Graveyard Shift", and confirm the settings appear under User only.
   - _Requirements: 2.1–2.4, 2.7, 2.8, 20.3_
+  - **Verification note (2026-11-14):**
+    - Ran `npm run verify`. Passed: typecheck, lint with 0 warnings, Vitest (7 files, 58 tests).
+    - New tests:
+      - `config.test.ts`: baseline deep-equals `config/defaults.json`; every package.json setting matches the spec table (type, default, min/max, enum, `application` scope, description); no typing or productivity wording; clamping, rounding, wrong-type fallback, threshold ordering.
+      - `config.property.test.ts`: any raw input gives a valid config; idempotent; at most one problem per setting.
+      - `constants.test.ts`: all constants positive, and the ordering relationships the design relies on.
+    - Mutation check: changing the eye default from 20 to 25 failed 3 tests, including the `defaults.json` comparison. The file was restored.
+    - `npm run package` succeeded with the new configuration contribution.
+    - Design note: one `SETTINGS` spec table drives validation, `DEFAULTS` and the manifest test, so defaults live in one place. `BASELINE_DEFAULTS` is a projection of `DEFAULTS` in the `defaults.json` shape.
+    - **Manual, pending (user):** in Kiro Settings, search "Graveyard Shift" and confirm the settings appear under the User tab and not under Workspace. This needs the rebuilt VSIX installed (the agent reinstalls it during task 7 wiring).
 
 ## Milestone B — Vertical slice: reminders end to end (in memory)
 

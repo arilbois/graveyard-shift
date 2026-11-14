@@ -59,7 +59,182 @@
         "title": "Open Companion",
         "category": "Graveyard Shift"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Graveyard Shift",
+      "properties": {
+        "graveyardShift.reminders.eye.enabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "application",
+          "order": 10,
+          "markdownDescription": "Remind me to rest my eyes."
+        },
+        "graveyardShift.reminders.eye.minutes": {
+          "type": "integer",
+          "default": 20,
+          "minimum": 5,
+          "maximum": 120,
+          "scope": "application",
+          "order": 11,
+          "markdownDescription": "Minutes of estimated IDE activity between eye-rest reminders."
+        },
+        "graveyardShift.reminders.movement.enabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "application",
+          "order": 12,
+          "markdownDescription": "Remind me to get up and move."
+        },
+        "graveyardShift.reminders.movement.minutes": {
+          "type": "integer",
+          "default": 60,
+          "minimum": 15,
+          "maximum": 240,
+          "scope": "application",
+          "order": 13,
+          "markdownDescription": "Minutes of estimated IDE activity between movement reminders."
+        },
+        "graveyardShift.reminders.hydration.enabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "application",
+          "order": 14,
+          "markdownDescription": "Remind me to drink some water."
+        },
+        "graveyardShift.reminders.hydration.minutes": {
+          "type": "integer",
+          "default": 60,
+          "minimum": 15,
+          "maximum": 240,
+          "scope": "application",
+          "order": 15,
+          "markdownDescription": "Minutes of estimated IDE activity between hydration reminders."
+        },
+        "graveyardShift.reminders.snoozeMinutes": {
+          "type": "integer",
+          "default": 10,
+          "minimum": 5,
+          "maximum": 60,
+          "scope": "application",
+          "order": 16,
+          "markdownDescription": "How long **Snooze** waits, in minutes of estimated IDE activity, before showing a reminder again."
+        },
+        "graveyardShift.reminders.humanCheckIn": {
+          "type": "boolean",
+          "default": true,
+          "scope": "application",
+          "order": 17,
+          "markdownDescription": "After a longer break, occasionally ask how I'm doing. Answers are optional and stay in memory unless saving is turned on below."
+        },
+        "graveyardShift.reminders.saveCheckInsLocally": {
+          "type": "boolean",
+          "default": false,
+          "scope": "application",
+          "order": 18,
+          "markdownDescription": "Keep my check-in answers in local extension storage on this machine. They are never sent anywhere."
+        },
+        "graveyardShift.companion.enabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "application",
+          "order": 20,
+          "markdownDescription": "Show the pixel-art companion. When off, reminders still work without the character."
+        },
+        "graveyardShift.companion.longSessionMode": {
+          "type": "string",
+          "enum": [
+            "panel",
+            "sidebar",
+            "off"
+          ],
+          "enumDescriptions": [
+            "Open The Last Human beside the editor. It never takes focus and can always be dismissed.",
+            "Show the long-session message in the sidebar with one standard notification.",
+            "Don't show long-session reminders."
+          ],
+          "default": "panel",
+          "scope": "application",
+          "order": 21,
+          "markdownDescription": "How to remind me after a long stretch without a longer break."
+        },
+        "graveyardShift.companion.longSessionHours": {
+          "type": "integer",
+          "default": 5,
+          "minimum": 1,
+          "maximum": 12,
+          "scope": "application",
+          "order": 22,
+          "markdownDescription": "Hours of estimated IDE activity without a break of 5 minutes or more before the long-session reminder. This is your own limit, not health guidance."
+        },
+        "graveyardShift.companion.tiredAfterMissedBreaks": {
+          "type": "integer",
+          "default": 1,
+          "minimum": 1,
+          "maximum": 20,
+          "scope": "application",
+          "order": 23,
+          "markdownDescription": "Skipped or missed break reminders before the companion looks **Tired**. Must be lower than the Infected value."
+        },
+        "graveyardShift.companion.infectedAfterMissedBreaks": {
+          "type": "integer",
+          "default": 3,
+          "minimum": 2,
+          "maximum": 30,
+          "scope": "application",
+          "order": 24,
+          "markdownDescription": "Skipped or missed break reminders before the companion looks **Infected**. Must be between the Tired and Zombie values."
+        },
+        "graveyardShift.companion.zombieAfterMissedBreaks": {
+          "type": "integer",
+          "default": 5,
+          "minimum": 3,
+          "maximum": 40,
+          "scope": "application",
+          "order": 25,
+          "markdownDescription": "Skipped or missed break reminders before the companion turns **Zombie**. Must be higher than the Infected value."
+        },
+        "graveyardShift.experience.sounds": {
+          "type": "boolean",
+          "default": true,
+          "scope": "application",
+          "order": 30,
+          "markdownDescription": "Play a short, soft cue when a reminder appears."
+        },
+        "graveyardShift.experience.soundVolume": {
+          "type": "integer",
+          "default": 30,
+          "minimum": 0,
+          "maximum": 100,
+          "scope": "application",
+          "order": 31,
+          "markdownDescription": "Cue volume, in percent."
+        },
+        "graveyardShift.experience.reducedMotion": {
+          "type": "boolean",
+          "default": true,
+          "scope": "application",
+          "order": 32,
+          "markdownDescription": "Use still frames instead of animation. Your system's reduced-motion preference is always respected as well."
+        },
+        "graveyardShift.experience.focusMode": {
+          "type": "boolean",
+          "default": true,
+          "scope": "application",
+          "order": 33,
+          "markdownDescription": "While I'm actively using the editor, hold reminders for up to 2 minutes, then show them quietly in the sidebar and status bar instead of a notification."
+        },
+        "graveyardShift.experience.idleMinutes": {
+          "type": "integer",
+          "default": 5,
+          "minimum": 1,
+          "maximum": 30,
+          "scope": "application",
+          "order": 34,
+          "markdownDescription": "Minutes without IDE interaction after which activity estimates pause. Idle time is never counted as a break."
+        }
+      }
+    }
   },
   "scripts": {
     "build": "npm run build:host && npm run build:webview",
