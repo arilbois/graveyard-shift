@@ -210,7 +210,7 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
     - `copy.test.ts` checks every string against a reviewable banned-terms list (typing, productivity, diagnoses, guilt, urgency, streaks, records, exclamation marks), at most two sentences each. `selectors.test.ts` covers the view model.
     - Design additions: `sinceBreakMs` (time since any Confirmed Break, for the status bar); acknowledgement notices after snooze and skip; `CoreEnv.localDay` injected for day rollover.
 
-- [ ] 7. Runtime and IDE activity adapter
+- [x] 7. Runtime and IDE activity adapter
   - `src/extension/application/runtime.ts`: tick + one-shot deadline timer, `EffectSink` interface, view-model change detection, error isolation.
   - `src/extension/activity/signals.ts`: subscriptions from design §6.2 only, 1 s coalescer, runtime check for `WindowState.active`. Unit test that emitted events carry no content fields.
   - Wire into `activate.ts` with in-memory state only (no persistence yet).
@@ -218,6 +218,30 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
     - measure when `WindowState.active` turns false in Kiro
     - let a Kiro agent edit and open files while hands-off, and confirm no selection signals are produced (temporary debug counter in the output channel, removed before commit)
   - _Requirements: 1.3, 3.1, 3.2, 3.7, 3.8, 14.2, 14.7, 18.2, 18.4_
+  - **Verification note (2026-11-14):**
+    - Ran `npm run verify`. Passed: typecheck, lint with 0 warnings, Vitest (21 files, 317 tests).
+    - `runtime.test.ts`, using fake clock and timers:
+      - exactly one 15 s interval, and `start()` is idempotent
+      - effects reach the sink
+      - the view model is published only on change, plus `republish()`
+      - one deadline timer, firing the 20 s eye-rest end
+      - errors in effects and listeners are logged by type only and the loop continues
+      - `dispose()` cancels every timer and ignores later events
+    - `signals.test.ts`:
+      - keyboard and mouse kinds map to signals; Command and undefined kinds are dropped
+      - 1 s coalescing; focus and `active` changes deduplicated
+      - hosts without `active` work
+      - emitted objects have only `type`, `source`, `focused` and `active`. A fake event carrying a file URI and `getText()` never leaks.
+      - both subscriptions are disposed
+    - Wiring: `activate.ts` builds the runtime with the system clock, local-day env and validated settings, starts the activity watcher, and reloads settings live. Toasts, cues and sidebar publishing are tasks 8–9.
+    - Live Kiro measurement attempted and **not completed**:
+      - Built a temporary diagnostic VSIX that logged signal sources and counts (no content) and installed it with `kiro --install-extension --force`.
+      - Kiro does not swap an updated extension into running windows without a reload, so the diagnostic build never ran and no data was collected.
+      - The diagnostic code was removed. The clean build is reinstalled and verified free of diagnostics (`grep diag` = 0).
+    - **Manual, pending (needs one window reload):**
+      1. Run "Developer: Reload Window" in Kiro.
+      2. Ask the agent to repeat the diagnostic build. The agent then (a) edits an open file through agent tools while the user is hands-off, and confirms no `keyboardSelection` or `mouseSelection` signals in the "Graveyard Shift" output log; and (b) records how long after the last interaction `WindowState.active` turns false.
+      3. The agent removes the diagnostic build afterwards.
 
 - [ ] 8. Typed bridge and sidebar UI v1
   - `src/shared/messages.ts` validators, with tests for extra keys, bad literals, long ids and wrong version.
