@@ -145,6 +145,21 @@ export const COPY = {
       `${aboutDuration(activeMinutes)} of estimated IDE activity`,
     ].join(' · '),
 
+  statusBar: {
+    paused: '$(debug-pause) Paused',
+    reminder: '$(bell-dot) Break reminder',
+    normal: (label: string, since: string): string => `$(heart) ${label} · ${since} since break`,
+    accessible: (label: string, minutes: number): string =>
+      `${label}. ${capitalise(aboutDuration(minutes))} of estimated activity since a break.`,
+  },
+
+  pause: {
+    placeholder: 'Pause Graveyard Shift for how long?',
+    thirtyMinutes: '30 minutes',
+    oneHour: '1 hour',
+    untilRestart: 'Until Kiro restarts',
+  },
+
   sidebar: {
     loading: 'Waking up your companion.',
     companionOff: 'The companion is hidden. Reminders still work.',

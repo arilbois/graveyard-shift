@@ -49,6 +49,8 @@ function allStrings(): string[] {
     COPY.paused.until(42),
     COPY.stats(2, 38, 100),
     COPY.sidebar.eyeRestLeft(12),
+    COPY.statusBar.normal('Feeling human', '42m'),
+    COPY.statusBar.accessible('Feeling human', 42),
     COPY.sidebar.awayFor(7),
   );
   return strings;
