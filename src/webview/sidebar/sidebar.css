@@ -1,19 +1,178 @@
+/*
+ * Sidebar layout (design §7.3). Single column on an 8px rhythm, working from 240px to 400px.
+ * Hierarchy: companion first, self-care action second, statistics third.
+ */
+
 .gs-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gs-space-2);
   padding: var(--gs-space-2);
+  min-width: 0;
   overflow-wrap: anywhere;
 }
 
-.gs-title {
-  margin: 0 0 var(--gs-space-1);
-  font-size: 1.1em;
+/* Companion ------------------------------------------------------------- */
+
+.gs-companion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gs-space-1);
+}
+
+/* A fixed night-sky window into the graveyard, the same in every theme (design §7.7). */
+.gs-scene {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding: var(--gs-space-2);
+  background: var(--gs-ink);
+  border: 2px solid var(--gs-muted);
+}
+
+.gs-scene--human,
+.gs-scene--recovery {
+  border-color: var(--gs-olive);
+}
+
+.gs-scene--zombie {
+  border-color: var(--gs-rust);
+}
+
+.gs-sprite {
+  display: block;
+  image-rendering: pixelated;
+}
+
+.gs-stage-label {
+  margin: 0;
+  font-size: 1.15em;
   font-weight: 600;
 }
 
-.gs-status {
-  margin: 0 0 var(--gs-space-1);
+.gs-stage-line {
+  margin: 0;
 }
 
-.gs-note {
+/* Cards and actions ----------------------------------------------------- */
+
+.gs-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gs-space-1);
+  padding: var(--gs-space-2);
+  border: 1px solid var(--vscode-panel-border, var(--vscode-widget-border, transparent));
+  background: var(--vscode-sideBar-background, transparent);
+}
+
+.gs-card__title {
+  margin: 0;
+  font-size: 1em;
+  font-weight: 600;
+}
+
+.gs-card__body,
+.gs-countdown {
+  margin: 0;
+}
+
+.gs-countdown {
+  font-variant-numeric: tabular-nums;
+}
+
+.gs-actions,
+.gs-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gs-space-1);
+}
+
+.gs-button {
+  min-height: 28px;
+  padding: 4px var(--gs-space-2);
+  border: 1px solid var(--vscode-button-border, transparent);
+  border-radius: 2px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.gs-button--primary {
+  color: var(--vscode-button-foreground);
+  background: var(--vscode-button-background);
+}
+
+.gs-button--primary:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+
+.gs-button--secondary {
+  color: var(--vscode-button-secondaryForeground, var(--vscode-foreground));
+  background: var(--vscode-button-secondaryBackground, transparent);
+}
+
+.gs-button--secondary:hover {
+  background: var(--vscode-button-secondaryHoverBackground, var(--vscode-toolbar-hoverBackground));
+}
+
+/* Below 280px the actions stack, so labels never truncate. */
+@media (max-width: 279px) {
+  .gs-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Supporting text -------------------------------------------------------- */
+
+.gs-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gs-space-1);
+}
+
+.gs-hint,
+.gs-status,
+.gs-stats {
   margin: 0;
   color: var(--vscode-descriptionForeground);
+}
+
+.gs-demo-badge {
+  margin: 0;
+  padding: 2px var(--gs-space-1);
+  align-self: flex-start;
+  color: var(--gs-ink);
+  background: var(--gs-bone);
+  font-weight: 600;
+}
+
+.gs-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* High contrast: give the fixed scene a theme outline (design §7.7). */
+body.vscode-high-contrast .gs-scene,
+body.vscode-high-contrast-light .gs-scene {
+  outline: 1px solid var(--vscode-contrastBorder);
+}
+
+/* Motion: nothing animates yet. Animation added in task 13 must be gated on .motion-full. */
+.motion-reduced * {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
 }

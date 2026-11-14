@@ -91,7 +91,7 @@ export const COPY = {
   notice: {
     snoozed: (minutes: number): string => `Okay. I'll check back in about ${minutes} minutes.`,
     snoozedOut: (minutes: number): string => `Okay. Next check-in in about ${minutes} minutes.`,
-    skipped: 'Okay.',
+    skipped: 'Okay, skipped for now.',
   },
 
   snoozed: (minutes: number): string => `Reminder snoozed. Back in ${aboutDuration(minutes)} of activity.`,
@@ -145,8 +145,19 @@ export const COPY = {
       `${aboutDuration(activeMinutes)} of estimated IDE activity`,
     ].join(' · '),
 
-  placeholder: {
-    awake: 'Graveyard Shift is awake.',
-    note: 'Your companion is still being drawn. Break reminders arrive in a later update.',
+  sidebar: {
+    loading: 'Waking up your companion.',
+    companionOff: 'The companion is hidden. Reminders still work.',
+    takeBreak: 'Take a break',
+    restEyes: 'Rest my eyes',
+    soundOn: 'Sound on',
+    soundOff: 'Sound off',
+    soundLabel: 'Reminder sound',
+    eyeRestLeft: (seconds: number): string => `${Math.max(0, Math.ceil(seconds))} seconds left.`,
+    awayFor: (minutes: number): string => `Away for ${aboutDuration(minutes)}.`,
+    reminderRegion: 'Break reminder',
+    confirmRegion: 'Count this break',
+    welcomeBackRegion: 'Welcome back',
+    statsRegion: 'Today',
   },
 } as const;
