@@ -95,11 +95,27 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
 
 ## Milestone B — Vertical slice: reminders end to end (in memory)
 
-- [ ] 3. Time model and activity accounting (pure)
+- [x] 3. Time model and activity accounting (pure)
   - `src/shared/time.ts` (`Instant`, `Clock`). `tests/support/fakeClock.ts` advances `mono` and `wall` independently.
   - `src/extension/session/accounting.ts` implementing design §4.3: signal crediting, idle boundary, focus loss, heartbeat while focused and active, clock-consistency check, pause, `lastInteraction`.
   - Unit tests for each R3 and R4 case in design §12. Property tests for invariants 1 and 2.
   - _Requirements: 3.3–3.6, 3.9, 4.1–4.4, 4.8, 14.8, 21.1_
+  - **Verification note (2026-11-14):**
+    - Ran `npm run verify`. Passed: typecheck, lint with 0 warnings (domain boundary applies to `session/`), Vitest (9 files, 92 tests).
+    - `accounting.test.ts` covers:
+      - idle boundary: exact threshold credited, threshold + 1 ms not
+      - focus loss credits up to blur, unfocused spans never credited, duplicate focus events
+      - heartbeat only while focused and `WindowState.active`; no `windowActive` events at all
+      - sleep (mono +1 min, wall +2 h), wall backwards, drift within and just over the 60 s tolerance
+      - suspension (pause or break) and `resumeAccounting`
+      - presence returns after idle, sleep, unfocused time and restart, including the untrusted-gap case
+    - `accounting.property.test.ts` checks, over random event streams with sleep, drift and backwards jumps:
+      - credits are never negative, never above the idle threshold, and 0 when unfocused or suspended
+      - credited intervals never overlap, so nothing is counted twice; the total never exceeds monotonic time
+      - credit is deterministic
+    - Design decisions:
+      - Accounting returns per-event `creditedMs` and an optional `returned` (wall gap). The engine applies credits to session, reminder and daily totals.
+      - The welcome-back and new-Session decisions belong to tasks 4 and 6, which keeps this module single-purpose.
 
 - [ ] 4. Breaks, welcome-back prompts and session lifecycle (pure)
   - `src/extension/session/breaks.ts` implementing design §4.5:
