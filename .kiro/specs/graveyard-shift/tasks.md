@@ -243,7 +243,7 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
       2. Ask the agent to repeat the diagnostic build. The agent then (a) edits an open file through agent tools while the user is hands-off, and confirms no `keyboardSelection` or `mouseSelection` signals in the "Graveyard Shift" output log; and (b) records how long after the last interaction `WindowState.active` turns false.
       3. The agent removes the diagnostic build afterwards.
 
-- [ ] 8. Typed bridge and sidebar UI v1
+- [x] 8. Typed bridge and sidebar UI v1
   - `src/shared/messages.ts` validators, with tests for extra keys, bad literals, long ids and wrong version.
   - `src/extension/webviews/sidebarProvider.ts` + `html.ts`: snapshot on `ready` and on change.
   - `src/webview/bridge.ts` and `src/webview/sidebar/*`:
@@ -254,6 +254,36 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
   - Webview tests: accessible names, keyboard activation, live-region text, correct intent ids.
   - **Manual:** sidebar at 240, 320 and 400 px; keyboard-only pass.
   - _Requirements: 1.1, 1.4, 1.5, 3.10, 5.2, 5.4, 5.5, 5.8, 7.1, 12.6, 13.1–13.3, 13.5, 13.9, 15.1–15.6_
+  - **Verification note (2026-11-14):**
+    - Ran `npm run verify`. Passed: typecheck, lint with 0 warnings, Vitest (25 files, 389 tests).
+    - `npm run build` passed: webview 233 KB JS + 2.9 KB CSS. The bundles have no `eval` or `new Function`, and no network APIs.
+    - `messages.test.ts`:
+      - every valid message accepted
+      - 16 invalid shapes rejected: wrong or missing version, unknown type, extra keys, `pause.start` from a webview, ids that are too long, empty or contain markup, missing fields
+      - a fast-check property over arbitrary input: never throws, returns only known types
+      - snapshot validation with real engine view models
+      - log labels
+    - `messageRouter.test.ts`: intents forwarded; webview interaction coalesced to 1/s; the sound toggle writes the setting and leaves core state alone.
+    - `placeholderSprites.test.ts`: all five stages are complete 16×16 grids; the silhouette is identical across stages; each stage looks different; the integer scale is clamped 6–12×.
+    - `SidebarApp.test.tsx` renders view models produced by the real engine:
+      - companion `img` named for its stage, with an h1
+      - self-care actions; the reminder card sends the correct occurrence id
+      - polite live region announces without moving focus
+      - confirm-break, "I'm back", Resume and welcome-back flows
+      - sound toggle with `aria-pressed`
+      - reduced-motion class on by default
+      - companion-disabled layout; all controls are native, named buttons
+      - the bridge drops invalid host messages
+    - Found and fixed during the task:
+      - `messageTypeForLog` would have logged a path-shaped `type` verbatim. It now logs only known protocol types (R14.7).
+      - Headless render review showed a stale "Okay." lingering after Skip. Acknowledgements now clear after 1 minute (`NOTICE_MS`) and read "Okay, skipped for now."
+    - Visual check, **headless Chrome only, not Kiro**: rendered the real bundle with engine snapshots in a `/tmp` harness using dark-theme variables. No horizontal overflow at 240, 320 or 400 px. The sprite renders crisp at integer scale. Hierarchy is sprite, then action, then stats. Not committed: these are not Kiro screenshots.
+    - `ASSETS.md` added for the original icon and placeholder sprite (CC BY 4.0).
+    - **Manual, pending (user, in Kiro after "Developer: Reload Window"):**
+      1. Open the Graveyard Shift sidebar and resize it to about 240 px and about 400 px; there should be no horizontal scrolling.
+      2. Tab through every control: visible focus ring, logical order, Enter and Space activate.
+      3. Toggle Sound and confirm `graveyardShift.experience.sounds` changes in User settings.
+      4. Check light and high-contrast themes.
 
 - [ ] 9. Notifications, status bar and core commands
   - `src/extension/notifications/toasts.ts`: information severity only, stale-id safe, closed = no response.
