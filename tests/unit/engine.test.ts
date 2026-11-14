@@ -257,6 +257,18 @@ describe('settings changes', () => {
   });
 });
 
+describe('acknowledgements (R8.4)', () => {
+  it('shows a brief neutral notice after skip that clears itself after a minute', () => {
+    const d = new EngineDriver(configWith(breaksOnly)).work(61);
+    d.intent({ kind: 'reminder.skip', occurrenceId: d.live?.id ?? '' });
+    expect(d.state.notice?.kind).toBe('skipped');
+    expect(nextDeadline(d.state, d.clock.now())).toBe(d.clock.now().mono + MINUTE_MS);
+    d.clock.advance(MINUTE_MS);
+    d.tick();
+    expect(d.state.notice).toBeNull();
+  });
+});
+
 describe('daily aggregates', () => {
   it('start fresh on a new local day and never roll backwards', () => {
     let day = '2026-11-14';

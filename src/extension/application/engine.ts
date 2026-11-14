@@ -1,5 +1,5 @@
 import type { EffectiveConfig } from '../../shared/config';
-import { MINUTE_MS } from '../../shared/constants';
+import { MINUTE_MS, NOTICE_MS } from '../../shared/constants';
 import type { ReminderKind } from '../../shared/domain';
 import type { UserIntent } from '../../shared/intents';
 import type { Instant } from '../../shared/time';
@@ -94,11 +94,12 @@ export type Effect =
   | { readonly type: 'surfaceReminder'; readonly occurrence: OccurrenceView }
   | { readonly type: 'playCue'; readonly cue: 'reminder' | 'recovery' };
 
-/** A short acknowledgement after a reminder action, shown in the sidebar (R8.2–R8.4). */
-export type Notice =
+/** A short acknowledgement after a reminder action, shown in the sidebar for a minute (R8.2–R8.4). */
+export type Notice = (
   | { readonly kind: 'snoozed'; readonly minutes: number }
   | { readonly kind: 'snoozedOut'; readonly minutes: number }
-  | { readonly kind: 'skipped' };
+  | { readonly kind: 'skipped' }
+) & { readonly untilMono: number };
 
 export interface PauseState {
   /** Monotonic end of the pause, or null for "until restart". */
@@ -287,8 +288,12 @@ function handleIntent(d: Draft, intent: UserIntent, at: Instant): void {
         reminders: result.state,
         today: increment(d.s.today, 'snoozed'),
         notice: snoozedOut
-          ? { kind: 'snoozedOut', minutes: Math.min(...live.kinds.map((k) => s.config.reminders[k].minutes)) }
-          : { kind: 'snoozed', minutes: s.config.reminders.snoozeMinutes },
+          ? {
+              kind: 'snoozedOut',
+              minutes: Math.min(...live.kinds.map((k) => s.config.reminders[k].minutes)),
+              untilMono: at.mono + NOTICE_MS,
+            }
+          : { kind: 'snoozed', minutes: s.config.reminders.snoozeMinutes, untilMono: at.mono + NOTICE_MS },
       };
       applyResolutions(d, result.resolutions);
       return;
@@ -296,7 +301,7 @@ function handleIntent(d: Draft, intent: UserIntent, at: Instant): void {
     case 'reminder.skip': {
       const result = skip(s.reminders, intent.occurrenceId);
       if (result.resolutions.length === 0) return;
-      d.s = { ...d.s, reminders: result.state, notice: { kind: 'skipped' } };
+      d.s = { ...d.s, reminders: result.state, notice: { kind: 'skipped', untilMono: at.mono + NOTICE_MS } };
       applyResolutions(d, result.resolutions);
       return;
     }
@@ -418,6 +423,7 @@ export function step(state: CoreState, event: CoreEvent, env: CoreEnv): StepResu
     ...d.s,
     companion: tickCompanion(d.s.companion, at),
     welcomeBack: tickWelcomeBack(d.s.welcomeBack, at),
+    notice: d.s.notice !== null && at.mono >= d.s.notice.untilMono ? null : d.s.notice,
   };
   return { state: d.s, effects: d.effects };
 }
@@ -428,6 +434,7 @@ export function nextDeadline(state: CoreState, at: Instant): number | null {
     breakDeadline(state.breaks),
     welcomeBackDeadline(state.welcomeBack),
     companionDeadline(state.companion),
+    state.notice?.untilMono ?? null,
     state.pause?.untilMono ?? null,
     deliveryDeadline(state.reminders.live, deliveryContext(state, at)),
   ].filter((value): value is number => value !== null);
