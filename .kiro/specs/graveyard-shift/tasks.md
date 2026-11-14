@@ -255,7 +255,7 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
   - **Manual:** sidebar at 240, 320 and 400 px; keyboard-only pass.
   - _Requirements: 1.1, 1.4, 1.5, 3.10, 5.2, 5.4, 5.5, 5.8, 7.1, 12.6, 13.1–13.3, 13.5, 13.9, 15.1–15.6_
   - **Verification note (2026-11-14):**
-    - Ran `npm run verify`. Passed: typecheck, lint with 0 warnings, Vitest (25 files, 389 tests).
+    - Ran `npm run verify`. Passed: typecheck, lint with 0 warnings, Vitest (25 files, 388 tests).
     - `npm run build` passed: webview 233 KB JS + 2.9 KB CSS. The bundles have no `eval` or `new Function`, and no network APIs.
     - `messages.test.ts`:
       - every valid message accepted
@@ -285,7 +285,7 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
       3. Toggle Sound and confirm `graveyardShift.experience.sounds` changes in User settings.
       4. Check light and high-contrast themes.
 
-- [ ] 9. Notifications, status bar and core commands
+- [x] 9. Notifications, status bar and core commands
   - `src/extension/notifications/toasts.ts`: information severity only, stale-id safe, closed = no response.
   - `statusBar.ts` with the attention state.
   - Commands: Open Companion, Take a Break, Start Eye Rest, Pause (quick pick), Resume.
@@ -296,6 +296,23 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
     - snooze, skip and take a break each behave as specified
     - the companion reaches Tired after one skipped Break Reminder and shows Recovery after a confirmed break
   - _Requirements: 1.6, 7.4, 7.5, 7.7, 8.1, 14.8, 17.1, 17.2_
+  - **Verification note (2026-11-14):**
+    - Ran `npm run verify`. Passed: typecheck, lint with 0 warnings, Vitest (26 files, 405 tests).
+    - `npm run package` built a 10-file VSIX. It was installed in Kiro with `--force`; it runs after a window reload.
+    - `presentation.test.ts`:
+      - toast text and exactly three actions; each action maps to the right intent; closing maps to nothing
+      - a stale toast click, run through the real engine, changes nothing
+      - status bar: normal, compact hours, calm attention state while a reminder is live, Paused, hidden when the companion is disabled
+      - pause choices of 30 min, 1 h and until restart
+    - The manifest test confirms all five commands are declared.
+    - Design: toast and status-bar wording is pure (`notifications/presentation.ts`). The `vscode` adapters (`toasts.ts`, `statusBar.ts`, `commands.ts`) are thin. Toasts are information severity and non-modal, so Do Not Disturb applies. The attention state uses `statusBarItem.prominentBackground`, not a warning colour.
+    - **Manual end-to-end, pending (user, in Kiro).** Run "Developer: Reload Window", then in User settings set `graveyardShift.reminders.eye.minutes` to 5 and `movement.minutes` and `hydration.minutes` to 15.
+      1. After about 5 minutes of editing, an eye reminder appears in the sidebar and as a toast. Keep typing without pause through it: there is no toast, the sidebar marks it "Shown quietly" after about 2 minutes, and no toast follows later.
+      2. Turn on Do Not Disturb (bell icon in the status bar); the next toast goes to the notification centre only.
+      3. Snooze: the card is replaced by "Reminder snoozed" and it returns after 10 active minutes. Skip on a movement or hydration reminder: the companion shows "Getting tired" and the status bar updates.
+      4. Take a break, step away for at least 5 minutes, come back and confirm: the companion shows "Coming back", then settles.
+      5. Run Graveyard Shift: Pause, choose 30 minutes: status bar and sidebar show "Paused" with Resume.
+      6. Reset the interval settings afterwards.
 
 > **⏸ Review checkpoint — vertical slice.** Work up to here may be committed and merged into `develop`. Do not start task 10 until the user has reviewed the slice in Kiro.
 
