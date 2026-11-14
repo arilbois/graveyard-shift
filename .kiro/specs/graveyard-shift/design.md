@@ -260,7 +260,7 @@ stateDiagram-v2
   Missed --> Accumulating
 ```
 
-- **Occurrence.** `{ id, kinds, createdAt: Instant, createdAtActiveMs, delivery: 'pending'|'deferred'|'surfaced'|'subtle', deliveredAtActiveMs?, snoozes, snoozedUntilActiveMs?, outcome? }`. Each kind is in at most one live occurrence (R6.3). Once `outcome` is set it never changes, which makes "counts once" structural (R7.9, R8.5).
+- **Occurrence.** `{ id, kinds, status: 'pending'|'surfaced'|'subtle'|'snoozed', pendingSince: Instant, deliveredAtActiveMs, snoozes, snoozedUntilActiveMs }`. There is **at most one live occurrence**. Kinds that become due while it is pending or snoozed join it. Kinds that become due while it is on screen (surfaced or subtle) wait until it resolves, so the card never changes under the user's pointer. Resolution removes the occurrence and emits exactly one outcome, which makes "counts once" structural (R7.9, R8.5). Deferral is computed from `pendingSince`; it is not a stored status.
 - **Combining (R6.4).** When kind *k* becomes due, every enabled kind *j* with `accum[j] ≥ interval[j] − 5 min` joins the occurrence. With the defaults, minute 60 produces one combined "look away, stretch, grab some water" reminder.
 - **Active-time units.** Snooze, the 15-minute missed window and spacing are all measured in Active Time, so walking away never makes reminders pile up.
 - **Missed Break accounting.** When an occurrence gets the outcome *skipped* or *missed* and includes movement or hydration, the companion receives one `missedBreak` event. Eye-only occurrences update only the eye stats.
