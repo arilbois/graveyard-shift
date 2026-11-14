@@ -3,8 +3,9 @@ import * as vscode from 'vscode';
 import { watchActivity } from './activity/signals';
 import { Runtime, systemTimers, type EffectSink } from './application/runtime';
 import { COMMANDS, VIEW_ID } from './ids';
-import { onSettingsChanged, readSettings } from './settings/settingsAdapter';
+import { onSettingsChanged, readSettings, setSoundEnabled } from './settings/settingsAdapter';
 import { localDay, systemClock } from './systemClock';
+import { createMessageRouter } from './webviews/messageRouter';
 import { SidebarViewProvider } from './webviews/sidebarProvider';
 
 /**
@@ -15,8 +16,15 @@ export function activate(context: vscode.ExtensionContext): void {
   const log = vscode.window.createOutputChannel('Graveyard Shift', { log: true });
   context.subscriptions.push(log);
 
-  // Interruptive effects (toasts, cues) are wired in tasks 8–9.
-  const effects: EffectSink = { apply: () => undefined };
+  // Late-bound: the runtime needs the sink and the sink needs the provider.
+  let sidebar: SidebarViewProvider | null = null;
+
+  // Toasts arrive in task 9; cues are forwarded to the sidebar, which stays silent until task 14.
+  const effects: EffectSink = {
+    apply: (effect) => {
+      if (effect.type === 'playCue') sidebar?.postCue(effect.cue);
+    },
+  };
 
   const runtime = new Runtime({
     clock: systemClock,
@@ -32,7 +40,29 @@ export function activate(context: vscode.ExtensionContext): void {
         log.error(message);
       },
     },
-    onViewModel: () => undefined,
+    onViewModel: (viewModel) => {
+      sidebar?.postSnapshot(viewModel);
+    },
+  });
+
+  const route = createMessageRouter({
+    dispatch: (input) => {
+      runtime.dispatch(input);
+    },
+    setSoundEnabled: (enabled) => {
+      setSoundEnabled(enabled).then(undefined, () => {
+        log.error('Could not update the sound setting.');
+      });
+    },
+    monoNow: () => performance.now(),
+  });
+
+  sidebar = new SidebarViewProvider(context.extensionUri, {
+    viewModel: () => runtime.viewModel,
+    onMessage: route,
+    logDropped: (type) => {
+      log.warn(`Dropped invalid webview message (type: ${type}).`);
+    },
   });
 
   const activity = watchActivity(
@@ -55,10 +85,11 @@ export function activate(context: vscode.ExtensionContext): void {
       },
     },
     activity,
+    sidebar,
     onSettingsChanged(({ config }) => {
       runtime.dispatch({ type: 'config', config });
     }),
-    vscode.window.registerWebviewViewProvider(VIEW_ID, new SidebarViewProvider(context.extensionUri), {
+    vscode.window.registerWebviewViewProvider(VIEW_ID, sidebar, {
       webviewOptions: { retainContextWhenHidden: false },
     }),
     vscode.commands.registerCommand(COMMANDS.openCompanion, () =>

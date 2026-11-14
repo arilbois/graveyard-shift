@@ -46,6 +46,8 @@ export const MEANINGFUL_BREAK_CREDIT = 2;
 /** Missed Break Count is capped at the zombie threshold plus this (R10.3). */
 export const COUNT_CAP_OFFSET = 2;
 export const RECOVERY_DISPLAY_MS = 3 * MINUTE_MS;
+/** How long a snooze or skip acknowledgement stays in the sidebar. */
+export const NOTICE_MS = 1 * MINUTE_MS;
 
 // The Last Human (R11)
 export const LH_REMIND_LATER_MS = 60 * MINUTE_MS;
