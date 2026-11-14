@@ -228,7 +228,8 @@ stateDiagram-v2
 ```
 
 - Signals in the first 60 s of a break are ignored, so the click on "Take a break" (a Webview signal) or a last keystroke does not end it at once.
-- Break duration is `endedAt.wall - startedAt.wall` when the interval is clock-consistent. Otherwise the confirmation asks without a number and offers "Less than 5 minutes" or "5 minutes or more".
+- Break duration is `endedAt.wall - startedAt.wall`. Away time is real time, and laptops often sleep during breaks, so the wall gap is used even when the monotonic clock paused. The duration is untrusted only if the wall clock moved backwards. In that case the confirmation asks without a number and offers "Less than 5 minutes" or "5 minutes or more".
+- The grace period and break end use the larger of the monotonic and (non-negative) wall elapsed time, so a break that included sleep ends on the first signal after waking.
 - **Eye Rest** resets `accum.eye` only. It does not change the stretch or the count (R5.3, R10.4).
 - **Short break (< 5 min)** resolves its source occurrence as *taken* and reduces the count by 1.
 - **Meaningful Break (≥ 5 min)** resets `stretchMs` and every accumulator, resolves pending occurrences as *taken*, resets stretch-scoped long-session state, and reduces the count by 2. A **Long Break (≥ 15 min)** sets the count to 0.
