@@ -142,7 +142,7 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
     - Design change, recorded in design.md §4.5: break duration uses wall time even across sleep (laptops sleep during breaks). It is untrusted only if the wall clock went backwards.
     - The engine (task 6) wires the new-Session reset: withdraw occurrences, reset count and long-session state, keep history.
 
-- [ ] 5. Reminder scheduler and delivery policy (pure)
+- [x] 5. Reminder scheduler and delivery policy (pure)
   - `src/extension/reminders/scheduler.ts`:
     - accumulators, occurrence creation and combining
     - snooze using `snoozeMinutes`, with the 3rd snooze → missed
@@ -153,6 +153,29 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
   - `src/extension/reminders/delivery.ts`: `decide()` from design §4.6. Covers focus, pause, break, spacing, deferral, pause → surface, and 2 min → subtle, never upgraded.
   - Unit tests for each R6, R7 and R8 rule. Property tests for invariants 3, 7 and 8.
   - _Requirements: 2.6, 2.9, 6.1–6.7, 7.2–7.4, 7.6, 7.8, 7.9, 8.2–8.5_
+  - **Verification note (2026-11-14):**
+    - Ran `npm run verify`. Passed: typecheck, lint with 0 warnings, Vitest (14 files, 177 tests).
+    - `scheduler.test.ts` covers:
+      - due at the interval; combining inside and just outside the 5-minute window; joining while pending; an on-screen card never changes, and waiting kinds follow after it resolves
+      - skip; snooze with default and custom length; 3rd snooze → missed
+      - missed exactly once after 15 active minutes, starting only after delivery
+      - stale ids ignored; take-a-break target
+      - Missed Break counting (Break Reminders only, once each; eye-only, taken and withdrawn don't count)
+      - effects of eye rest, short break and Meaningful Break
+      - a shorter interval produces one occurrence, not one per past interval; disabling withdraws without counting
+      - new-Session reset
+    - `delivery.test.ts` covers:
+      - the interaction window boundary; every `canInterrupt` blocker; 5-minute spacing
+      - focus mode off; waits during interaction and surfaces at a 10 s pause; subtle at exactly 2 min
+      - no re-delivery; deferral deadlines
+    - `reminders.property.test.ts` checks, over random activity, intents (including stale ids) and settings changes:
+      - surfacings are ≥ 5 active min apart and each occurrence surfaces ≤ 3 times (invariant 3)
+      - each occurrence gets exactly one outcome
+      - determinism (invariant 7)
+      - duplicate intents change nothing (invariant 8)
+      - at most one live occurrence, with no duplicate kinds
+    - Design decision: at most one live occurrence. Kinds due while it is pending or snoozed join it. Kinds due while it is on screen wait, so the reminder card never changes under the user's pointer.
+    - Clarified R7.9 (requirements.md): the 15-minute missed window restarts at each delivery, and snoozed time does not count.
 
 - [ ] 6. Companion state machine and root engine (pure)
   - `src/extension/companion/stage.ts`: count-based derivation with ⚙ thresholds, cap, credits, one-step escalation, Recovery with deadline (design §4.7).

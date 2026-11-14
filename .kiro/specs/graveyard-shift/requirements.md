@@ -179,7 +179,7 @@ Criteria use EARS patterns: ubiquitous (`THE … SHALL`), event (`WHEN …`), st
 6. WHILE the window is not the Owner Window, or is Paused, On Break, in an Eye Rest, showing The Last Human, or running a Demo Simulation (for real occurrences), THE Extension SHALL NOT surface reminders; occurrences stay pending in the sidebar.
 7. IF a notification is closed without choosing an action, THEN THE Extension SHALL treat it as no response and keep the occurrence pending.
 8. IF the user acts on a notification or sidebar card for an occurrence that already has an outcome, THEN THE Extension SHALL ignore the action.
-9. IF an occurrence receives no response for 15 minutes† of Active Time after it was first surfaced or subtly delivered, THEN THE Extension SHALL resolve it as *missed* exactly once, remove it from the sidebar quietly, and SHALL NOT surface it again.
+9. IF an occurrence receives no response for 15 minutes† of Active Time after it was last surfaced or subtly delivered (time spent snoozed does not count), THEN THE Extension SHALL resolve it as *missed* exactly once, remove it from the sidebar quietly, and SHALL NOT surface it again.
 
 ### Requirement 8 — Responding to reminders
 
