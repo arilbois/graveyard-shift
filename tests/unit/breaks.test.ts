@@ -286,4 +286,14 @@ describe('session lifecycle (R4.7)', () => {
     expect(after.stretchMs).toBe(minutes * MINUTE_MS);
     expect(after.activeMs).toBe(60 * MINUTE_MS);
   });
+
+  it.each([
+    ['eyeRest', 60],
+    ['short', 0],
+    ['meaningful', 0],
+    ['long', 0],
+  ] as const)('a %s break leaves "time since a break" at %i minutes', (kind, minutes) => {
+    const session = creditSession(newSession(clock.now()), 60 * MINUTE_MS);
+    expect(applyBreakToSession(session, kind).sinceBreakMs).toBe(minutes * MINUTE_MS);
+  });
 });

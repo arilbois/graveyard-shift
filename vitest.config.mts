@@ -19,6 +19,8 @@ export default defineConfig({
           name: 'property',
           environment: 'node',
           include: ['tests/property/**/*.test.ts'],
+          // Whole-engine properties simulate many hours of events per run.
+          testTimeout: 30_000,
         },
       },
       {

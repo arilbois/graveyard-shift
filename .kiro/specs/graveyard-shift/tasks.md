@@ -177,13 +177,38 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
     - Design decision: at most one live occurrence. Kinds due while it is pending or snoozed join it. Kinds due while it is on screen wait, so the reminder card never changes under the user's pointer.
     - Clarified R7.9 (requirements.md): the 15-minute missed window restarts at each delivery, and snoozed time does not count.
 
-- [ ] 6. Companion state machine and root engine (pure)
+- [x] 6. Companion state machine and root engine (pure)
   - `src/extension/companion/stage.ts`: count-based derivation with ⚙ thresholds, cap, credits, one-step escalation, Recovery with deadline (design §4.7).
   - `src/extension/application/engine.ts`: `CoreState`, `CoreEvent`, `Effect`, and `step()` composing tasks 3–5 with this task in the fixed order; `nextDeadline(state)`.
   - `src/extension/application/selectors.ts`: `selectViewModel()`.
   - `src/shared/copy.ts`: first-draft strings that frame stats around breaks, avoid typing or productivity wording, and contain no guilt language.
   - Unit tests for R10. Property tests for invariants 5 and 7 over the whole engine. A copy test checks that no string contains banned terms (a reviewable list).
   - _Requirements: 8.6, 10.1–10.10, 19.1–19.5_
+  - **Verification note (2026-11-14):**
+    - Ran `npm run verify`. Passed: typecheck, lint with 0 warnings (domain boundary covers `engine.ts` and `selectors.ts`), Vitest (19 files, 302 tests, 6.2 s).
+    - `stage.test.ts`:
+      - thresholds 1/3/5 and custom values; cap at zombie + 2; one step up when thresholds jump
+      - Recovery: ends early on a miss, lasts 3 minutes, a second break extends it without a second cue
+      - credits: eye rest 0, short −1, Meaningful −2, Long → 0; Zombie + one Meaningful Break never reaches Human
+    - `engine.test.ts`, end to end through `step()`:
+      - first reminder at 20 min, cue only with sounds on
+      - focus-mode deferral, then subtle after 2 minutes and never upgraded; focus mode off surfaces at once
+      - nothing surfaced or credited while unfocused or away
+      - Tired after one skipped Break Reminder; eye-only skips don't count; a missed reminder counts once
+      - six hours with breaks taken stays Human
+      - the break flow, including the grace period, decline and a Meaningful Break with Recovery cue
+      - an eye rest keeps the stretch
+      - welcome-back yes and no; idle never counts as a break
+      - new Session after 6 h: withdraws reminders, resets the companion, keeps today's stats
+      - pause and timed-pause expiry; disabling a kind; live threshold change; day rollover that never goes backwards
+    - `engine.property.test.ts`: long random sequences (work bursts, sleep including > 6 h, wall jumps, focus, every intent with live or stale ids, threshold changes). Checks:
+      - invariant 5: valid stage, at most +1 count and +1 stage per event, within the cap
+      - invariants 1 and 4: activity never decreases, and the stretch drops only to 0 at a Meaningful Break or a new Session
+      - surfacing only when focused, unpaused and with no break active, ≥ 5 active min apart
+      - invariant 7: determinism, including the view model
+    - Added a generator-coverage test, because the first generator surfaced no reminders in 300 runs. It now must reach surfacing, all stages, Recovery, confirmed breaks and new Sessions.
+    - `copy.test.ts` checks every string against a reviewable banned-terms list (typing, productivity, diagnoses, guilt, urgency, streaks, records, exclamation marks), at most two sentences each. `selectors.test.ts` covers the view model.
+    - Design additions: `sinceBreakMs` (time since any Confirmed Break, for the status bar); acknowledgement notices after snooze and skip; `CoreEnv.localDay` injected for day rollover.
 
 - [ ] 7. Runtime and IDE activity adapter
   - `src/extension/application/runtime.ts`: tick + one-shot deadline timer, `EffectSink` interface, view-model change detection, error isolation.
