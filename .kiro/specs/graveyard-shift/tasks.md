@@ -117,7 +117,7 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
       - Accounting returns per-event `creditedMs` and an optional `returned` (wall gap). The engine applies credits to session, reminder and daily totals.
       - The welcome-back and new-Session decisions belong to tasks 4 and 6, which keeps this module single-purpose.
 
-- [ ] 4. Breaks, welcome-back prompts and session lifecycle (pure)
+- [x] 4. Breaks, welcome-back prompts and session lifecycle (pure)
   - `src/extension/session/breaks.ts` implementing design §4.5:
     - eye rest and on-break with the 60 s grace
     - awaiting confirmation with timeout
@@ -126,6 +126,21 @@ The first vertical slice is Milestones A–B (tasks 1–9). It delivers estimate
   - `src/extension/session/lifecycle.ts`: an in-process 6 h gap starts a new Session per design §4.4 (withdraw pending items, reset count and long-session state, keep history). Restart handling waits for task 10.
   - Unit tests for each transition and boundary. Property test for invariant 4.
   - _Requirements: 4.7, 5.1–5.9_
+  - **Verification note (2026-11-14):**
+    - Ran `npm run verify`. Passed: typecheck, lint with 0 warnings, Vitest (11 files, 130 tests).
+    - Unit tests cover:
+      - break classification at 4:59.999 / 5:00 / 14:59.999 / 15:00
+      - eye rest completes at exactly 20 s, cancel credits nothing, signals don't interrupt it
+      - the 60 s grace; "I'm back" inside the grace; stale ids ignored
+      - sleep during a break measured by wall time; unknown duration when the wall clock went back, resolved by the user's "5 minutes or more" answer
+      - confirm yes/no and the 10-minute lapse
+      - welcome-back: 5-minute minimum, untrusted gaps, ≥ 6 h excluded (new Session instead), 30-minute rate limit including a backwards clock, lapse and withdraw
+      - session crediting, and which break kinds reset the stretch
+    - Property tests:
+      - a break is recorded only from a completed eye rest or an explicit yes; signals never record one (R5.1)
+      - only Meaningful and Long Breaks reset the stretch (invariant 4)
+    - Design change, recorded in design.md §4.5: break duration uses wall time even across sleep (laptops sleep during breaks). It is untrusted only if the wall clock went backwards.
+    - The engine (task 6) wires the new-Session reset: withdraw occurrences, reset count and long-session state, keep history.
 
 - [ ] 5. Reminder scheduler and delivery policy (pure)
   - `src/extension/reminders/scheduler.ts`:
